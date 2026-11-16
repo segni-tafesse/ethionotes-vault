@@ -38,28 +38,27 @@
     <small style="color:var(--muted);">Study Notes & Solved Exams 🇪🇹</small>
   </div>
   <div style="text-align:right;">
-    <div class="badge" id="balanceBadge">0 ETB</div>
-    <small style="color:#38bdf8;font-size:11px;display:block;margin-top:4px;" id="freeCounter">🎁 15 Free Downloads Left</small>
+    <div class="badge" id="launchBadge">🎉 FREE ACCESS</div>
   </div>
 </div>
 
 <!-- STEP 1: WELCOME / CHOOSE ACTION SCREEN -->
 <div id="welcomeScreen" class="hero-card">
   <h3 style="margin:0 0 8px;font-size:22px;">What would you like to do?</h3>
-  <p style="color:var(--muted);font-size:14px;margin:0 0 16px;">Choose an option below to get started. You can switch anytime.</p>
+  <p style="color:var(--muted);font-size:14px;margin:0 0 16px;">All notes & solved exams are currently <b>100% FREE</b> for students!</p>
   
   <button class="choice-btn choice-buy" onclick="enterApp('browse')">
     <span>🔍 Find & Download Notes / Exams</span>
-    <small style="font-weight:normal;font-size:12px;">Includes 15 free sample downloads + paid solved exams</small>
+    <small style="font-weight:normal;font-size:12px;">Instant free PDF downloads for all universities</small>
   </button>
 
   <button class="choice-btn choice-sell" onclick="enterApp('upload')">
-    <span>⬆️ Upload PDF & Earn Telebirr</span>
-    <small style="font-weight:normal;font-size:12px;">Earn 65% every time a student unlocks your PDF</small>
+    <span>⬆️ Upload Study Notes / Exams</span>
+    <small style="font-weight:normal;font-size:12px;">Share your notes now & earn Telebirr once monetization opens</small>
   </button>
 </div>
 
-<!-- MAIN APP CONTAINER (HIDDEN UNTIL USER CHOOSES) -->
+<!-- MAIN APP CONTAINER -->
 <div id="mainApp" class="hidden">
   <div class="tabs">
     <button class="tab" id="tabBtn-browse" onclick="switchTab('browse')">🔍 Browse</button>
@@ -80,7 +79,7 @@
       <option>Hawassa University</option>
       <option>Mekelle University</option>
     </select>
-    <input type="text" id="searchInput" placeholder="Search course or keyword (e.g. Physics, Math, Free)..." oninput="loadNotes()" />
+    <input type="text" id="searchInput" placeholder="Search course or keyword (e.g. Physics, Math, Logic)..." oninput="loadNotes()" />
     <div id="notesList"><p style="color:var(--muted);text-align:center;">Loading notes...</p></div>
   </div>
 
@@ -88,7 +87,7 @@
   <div id="tab-upload" class="hidden">
     <div class="card">
       <h3 style="margin-top:0;">Upload Study Note or Solved Exam</h3>
-      <p style="font-size:13px;color:var(--muted);">Earn <b>65%</b> on paid downloads, or publish <b>Free Samples (0 ETB)</b>!</p>
+      <p style="font-size:13px;color:var(--muted);">Upload your PDFs now—when paid mode turns on, you earn <b>65%</b> per download!</p>
       <label>University / Level</label>
       <select id="upUni">
         <option>Freshman / Remedial (All Universities)</option>
@@ -104,12 +103,12 @@
       <input type="text" id="upCourse" placeholder="e.g. Phys 1011 / Applied Math I" />
       <label>Title</label>
       <input type="text" id="upTitle" placeholder="e.g. 2016 Midterm + Full Step-by-Step Solutions" />
-      <label>Price (ETB)</label>
+      <label>Future Price (Free during launch promo)</label>
       <select id="upPrice">
-        <option value="0">0 ETB (Free Sample — Counts toward 15 free limit)</option>
-        <option value="20">20 ETB (Creator earns 13 ETB/sale)</option>
-        <option value="30" selected>30 ETB (Creator earns 19.5 ETB/sale)</option>
-        <option value="50">50 ETB (Creator earns 32.5 ETB/sale)</option>
+        <option value="0">0 ETB (Always Free)</option>
+        <option value="20">20 ETB (Free now — 13 ETB/sale later)</option>
+        <option value="30" selected>30 ETB (Free now — 19.5 ETB/sale later)</option>
+        <option value="50">50 ETB (Free now — 32.5 ETB/sale later)</option>
       </select>
       <label>Select PDF File</label>
       <input type="file" id="upFile" accept="application/pdf" />
@@ -120,18 +119,16 @@
   <!-- WALLET TAB -->
   <div id="tab-wallet" class="hidden">
     <div class="card">
-      <h3 style="margin-top:0;">Your Creator Earnings</h3>
+      <h3 style="margin-top:0;">Your Creator Wallet</h3>
       <p style="font-size:28px;font-weight:bold;color:var(--accent);margin:8px 0;" id="walletAmount">0.00 ETB</p>
-      <p style="font-size:13px;color:var(--muted);">Minimum withdrawal: 100 ETB via Telebirr</p>
+      <p style="font-size:13px;color:var(--muted);">Save your Telebirr number now for future creator payouts:</p>
       <input type="text" id="telebirrInput" placeholder="Enter your Telebirr number (09...)" />
-      <button class="btn" onclick="requestWithdraw()">Withdraw to Telebirr 💸</button>
+      <button class="btn" onclick="requestWithdraw()">Save Telebirr Number 💾</button>
     </div>
-    <h4>My Unlocked PDFs</h4>
-    <div id="myUnlocksList"></div>
   </div>
 </div>
 
-<!-- PAYMENT MODAL (HIDDEN BY DEFAULT) -->
+<!-- PAYMENT MODAL (USED WHEN FREE_LAUNCH_MODE IS SET TO FALSE) -->
 <div id="payModal" class="modal hidden">
   <div class="modal-box">
     <h3 style="margin-top:0;" id="modalTitle">Unlock PDF</h3>
@@ -148,10 +145,11 @@
 </div>
 
 <script>
-  // ====== PASTE YOUR SUPABASE ANON KEY BELOW ======
+  // ====== SWITCH THIS TO false LATER WHEN YOU WANT TO CHARGE MONEY ======
+  const FREE_LAUNCH_MODE = true;
   const SUPABASE_URL = "https://supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_sDRw2ULepUszDnI_btVRjg_haxqU-r7";
-  // ===============================================
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+  // ======================================================================
 
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const tg = window.Telegram.WebApp;
@@ -161,14 +159,6 @@
   const userId = String(tgUser.id);
   const userName = tgUser.first_name || "Student";
   let selectedNote = null;
-
-  // Track 15 free downloads per user in browser storage
-  let freeUsed = Number(localStorage.getItem("free_used_" + userId) || "0");
-  function updateFreeUI() {
-    const left = Math.max(0, 15 - freeUsed);
-    document.getElementById("freeCounter").innerText = `🎁 ${left}/15 Free Downloads Left`;
-  }
-  updateFreeUI();
 
   function enterApp(tab) {
     document.getElementById("welcomeScreen").classList.add("hidden");
@@ -188,55 +178,44 @@
   async function initUser() {
     let { data } = await db.from("vault_users").select("*").eq("telegram_id", userId).single();
     if (!data) {
-await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
-data = { balance_etb: 0 };
-}
-document.getElementById("balanceBadge").innerText = ${data.balance_etb} ETB;
-document.getElementById("walletAmount").innerText = ${Number(data.balance_etb).toFixed(2)} ETB;
-if (data.telebirr_phone) document.getElementById("telebirrInput").value = data.telebirr_phone;
+      await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
+      data = { balance_etb: 0 };
+    }
+    if (!FREE_LAUNCH_MODE) {
+      document.getElementById("launchBadge").innerText = `${data.balance_etb} ETB`;
+    }
+    document.getElementById("walletAmount").innerText = `${Number(data.balance_etb).toFixed(2)} ETB`;
+    if (data.telebirr_phone) document.getElementById("telebirrInput").value = data.telebirr_phone;
 loadNotes();
-loadMyUnlocks();
 }
 async function loadNotes() {
 const q = document.getElementById("searchInput").value.toLowerCase();
 const uni = document.getElementById("uniFilter").value;
-const { data: notes } = await db.from("notes").select("*").order("created_at", { ascending: false }).limit(150);
+const { data: notes } = await db.from("notes").select("*").order("created_at", { ascending: false }).limit(200);
 const { data: myUnlocks } = await db.from("unlocks").select("note_id, status").eq("buyer_id", userId);
 const unlockMap = {};
 (myUnlocks || []).forEach(u => unlockMap[u.note_id] = u.status);
 const list = document.getElementById("notesList");
 const filtered = (notes || []).filter(n => {
 const matchUni = !uni || n.university === uni;
-const matchSearch = n.university.toLowerCase().includes(q) || n.course_code.toLowerCase().includes(q) || n.title.toLowerCase().includes(q) || (q === "free" && Number(n.price_etb) === 0);
+const matchSearch = n.university.toLowerCase().includes(q) || n.course_code.toLowerCase().includes(q) || n.title.toLowerCase().includes(q);
 return matchUni && matchSearch;
 });
 if (!filtered.length) {
-list.innerHTML = <p style="color:var(--muted);text-align:center;">No notes found yet. Tap "Upload PDF" to add the first one!</p>;
+list.innerHTML = <p style="color:var(--muted);text-align:center;">No notes uploaded yet. Tap "Upload PDF" to add the first one!</p>;
 return;
 }
 list.innerHTML = filtered.map(n => {
-const isFree = Number(n.price_etb) === 0;
+const isFree = FREE_LAUNCH_MODE || Number(n.price_etb) === 0;
 const status = unlockMap[n.id];
 let actionBtn = <button class="btn" onclick='openUnlock(${JSON.stringify(n)})'>Unlock Full PDF — ${n.price_etb} ETB 🔒</button>;
-if (isFree) {
-actionBtn = <button class="btn btn-free" onclick="downloadFree('${n.file_url}')">Download Free Sample 📥 (${Math.max(0, 15 - freeUsed)} left)</button>;
-} else if (n.uploader_id === userId || status === "approved") {
-actionBtn = <a href="${n.file_url}" target="_blank" style="text-decoration:none;"><button class="btn btn-free">Download Unlocked PDF 📥</button></a>;
+if (isFree || n.uploader_id === userId || status === "approved") {
+actionBtn = <a href="${n.file_url}" target="_blank" style="text-decoration:none;"><button class="btn btn-free">Download Free PDF 📥</button></a>;
 } else if (status === "pending") {
 actionBtn = <button class="btn" style="background:#f59e0b;" disabled>⏳ Verifying Telebirr TX...</button>;
 }
-return <div class="card"> <div> <span class="tag">${n.university}</span> <span class="tag">${n.course_code}</span> ${isFree ? '<span class="tag tag-free">FREE SAMPLE</span>' : ''} </div> <h4 style="margin:8px 0 4px;">${n.title}</h4> <small style="color:var(--muted);display:block;margin-bottom:10px;">By ${n.uploader_name}</small> ${actionBtn} </div>;
+return <div class="card"> <div> <span class="tag">${n.university}</span> <span class="tag">${n.course_code}</span> ${isFree ? '<span class="tag tag-free">FREE PROMO</span>' : ''} </div> <h4 style="margin:8px 0 4px;">${n.title}</h4> <small style="color:var(--muted);display:block;margin-bottom:10px;">By ${n.uploader_name}</small> ${actionBtn} </div>;
 }).join("");
-}
-function downloadFree(url) {
-if (freeUsed >= 15) {
-return alert("You have used all 15 free sample downloads! Unlock full solved exams to keep studying.");
-}
-freeUsed += 1;
-localStorage.setItem("free_used_" + userId, String(freeUsed));
-updateFreeUI();
-loadNotes();
-window.open(url, "_blank");
 }
 async function uploadNote() {
 const file = document.getElementById("upFile").files;
@@ -279,14 +258,10 @@ closeModal();
 alert("✅ Payment submitted! Once verified, your PDF download unlocks automatically.");
 loadNotes();
 }
-async function loadMyUnlocks() {
-const { data } = await db.from("unlocks").select(", notes()").eq("buyer_id", userId).eq("status", "approved");
-document.getElementById("myUnlocksList").innerHTML = (data || []).map(u => <div class="card"> <b>${u.notes.title}</b><br/> <a href="${u.notes.file_url}" target="_blank" style="color:var(--accent);font-size:13px;">Open PDF 📥</a> </div>).join("") || <p style="color:var(--muted);font-size:13px;">No unlocked PDFs yet.</p>;
-}
 async function requestWithdraw() {
 const phone = document.getElementById("telebirrInput").value.trim();
 if (!phone) return alert("Enter your Telebirr number!");
 await db.from("vault_users").update({ telebirr_phone: phone }).eq("telegram_id", userId);
-alert("✅ Telebirr number saved! Payouts over 100 ETB are processed within 24 hours.");
+alert("✅ Telebirr number saved!");
 }
 initUser();
