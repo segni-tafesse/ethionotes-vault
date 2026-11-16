@@ -35,34 +35,28 @@
     <h2 style="margin:0;font-size:20px;">📚 EthioNotes Vault</h2>
     <small style="color:var(--muted);">Study Notes & Solved Exams 🇪🇹</small>
   </div>
-  <div class="badge" id="launchBadge">🎉 FREE ACCESS</div>
+  <div class="badge">🎉 FREE ACCESS</div>
 </div>
 
-<!-- STEP 1: WELCOME SCREEN -->
+<!-- WELCOME SCREEN -->
 <div id="welcomeScreen" class="hero-card">
   <h3 style="margin:0 0 8px;font-size:22px;">What would you like to do?</h3>
   <p style="color:var(--muted);font-size:14px;margin:0 0 16px;">All notes & solved exams are currently <b>100% FREE</b>!</p>
-  
-  <button type="button" class="choice-btn choice-buy" onclick="openSection('browse')">
-    🔍 Find & Download Notes / Exams
-  </button>
-
-  <button type="button" class="choice-btn choice-sell" onclick="openSection('upload')">
-    ⬆️ Upload Study Notes / Exams
-  </button>
+  <button type="button" id="goBrowseBtn" class="choice-btn choice-buy">🔍 Find & Download Notes / Exams</button>
+  <button type="button" id="goUploadBtn" class="choice-btn choice-sell">⬆️ Upload Study Notes / Exams</button>
 </div>
 
 <!-- MAIN APP -->
 <div id="mainApp" class="hidden">
   <div class="tabs">
-    <button type="button" class="tab" id="tabBtn-browse" onclick="switchTab('browse')">🔍 Browse</button>
-    <button type="button" class="tab" id="tabBtn-upload" onclick="switchTab('upload')">⬆️ Upload PDF</button>
-    <button type="button" class="tab" id="tabBtn-wallet" onclick="switchTab('wallet')">💰 Wallet</button>
+    <button type="button" id="tabBrowse" class="tab">🔍 Browse</button>
+    <button type="button" id="tabUpload" class="tab">⬆️ Upload PDF</button>
+    <button type="button" id="tabWallet" class="tab">💰 Wallet</button>
   </div>
 
-  <!-- BROWSE TAB -->
-  <div id="tab-browse" class="hidden">
-    <select id="uniFilter" onchange="loadNotes()">
+  <!-- BROWSE -->
+  <div id="viewBrowse" class="hidden">
+    <select id="uniFilter">
       <option value="">All Universities & Freshman Courses</option>
       <option>Freshman / Remedial (All Universities)</option>
       <option>Addis Ababa University (AAU)</option>
@@ -73,12 +67,12 @@
       <option>Hawassa University</option>
       <option>Mekelle University</option>
     </select>
-    <input type="text" id="searchInput" placeholder="Search course or keyword..." oninput="loadNotes()" />
+    <input type="text" id="searchInput" placeholder="Search course or keyword..." />
     <div id="notesList"><p style="color:var(--muted);text-align:center;">Loading notes...</p></div>
   </div>
 
-  <!-- UPLOAD TAB -->
-  <div id="tab-upload" class="hidden">
+  <!-- UPLOAD -->
+  <div id="viewUpload" class="hidden">
     <div class="card">
       <h3 style="margin-top:0;">Upload Study Note or Solved Exam</h3>
       <label>University / Level</label>
@@ -104,48 +98,45 @@
         <option value="50">50 ETB (Free now)</option>
       </select>
       <label>Select PDF File</label>
-      <input type="file" id="upFile" accept="application/pdf" />
-      <button type="button" class="btn" id="uploadBtn" onclick="doUpload()">Publish PDF 🚀</button>
+      <input type="file" id="upFile" accept=".pdf,application/pdf" />
+      <button type="button" id="publishBtn" class="btn">Publish PDF 🚀</button>
     </div>
   </div>
 
-  <!-- WALLET TAB -->
-  <div id="tab-wallet" class="hidden">
+  <!-- WALLET -->
+  <div id="viewWallet" class="hidden">
     <div class="card">
       <h3 style="margin-top:0;">Your Creator Wallet</h3>
-      <p style="font-size:28px;font-weight:bold;color:var(--accent);margin:8px 0;" id="walletAmount">0.00 ETB</p>
+      <p style="font-size:28px;font-weight:bold;color:var(--accent);margin:8px 0;">0.00 ETB</p>
       <p style="font-size:13px;color:var(--muted);">Save your Telebirr number for future payouts:</p>
       <input type="text" id="telebirrInput" placeholder="Enter Telebirr number (09...)" />
-      <button type="button" class="btn" onclick="savePhone()">Save Telebirr Number 💾</button>
+      <button type="button" id="savePhoneBtn" class="btn">Save Telebirr Number 💾</button>
     </div>
   </div>
 </div>
 
 <script>
+window.addEventListener("DOMContentLoaded", function() {
   // PASTE YOUR SUPABASE PUBLISHABLE / ANON KEY HERE:
   var SUPABASE_URL = "https://supabase.co";
-  var SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+  var SUPABASE_ANON_KEY = "sb_publishable_sDRw2ULepUszDnI_btVRjg_haxqU-r7";
 
-  function openSection(tab) {
+  function showTab(name) {
     document.getElementById("welcomeScreen").classList.add("hidden");
     document.getElementById("mainApp").classList.remove("hidden");
-    switchTab(tab);
+    ["Browse", "Upload", "Wallet"].forEach(function(t) {
+      document.getElementById("view" + t).classList.add("hidden");
+      document.getElementById("tab" + t).classList.remove("active");
+    });
+    document.getElementById("view" + name).classList.remove("hidden");
+    document.getElementById("tab" + name).classList.add("active");
   }
 
-  function switchTab(tab) {
-    var tabs = ["browse", "upload", "wallet"];
-    for (var i = 0; i < tabs.length; i++) {
-      document.getElementById("tab-" + tabs[i]).classList.add("hidden");
-      document.getElementById("tabBtn-" + tabs[i]).classList.remove("active");
-    }
-    document.getElementById("tab-" + tab).classList.remove("hidden");
-    document.getElementById("tabBtn-" + tab).classList.add("active");
-  }
-
-  var db = null;
-  if (window.supabase && SUPABASE_ANON_KEY !== "sb_publishable_sDRw2ULepUszDnI_btVRjg_haxqU-r7") {
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
+  document.getElementById("goBrowseBtn").onclick = function() { showTab("Browse"); };
+  document.getElementById("goUploadBtn").onclick = function() { showTab("Upload"); };
+  document.getElementById("tabBrowse").onclick = function() { showTab("Browse"); };
+  document.getElementById("tabUpload").onclick = function() { showTab("Upload"); };
+  document.getElementById("tabWallet").onclick = function() { showTab("Wallet"); };
 
   var tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
@@ -154,24 +145,16 @@
   var userId = String(tgUser.id);
   var userName = tgUser.first_name || "Student";
 
-  async function initUser() {
-    if (!db) {
-      document.getElementById("notesList").innerHTML = "<p style='color:#f59e0b;text-align:center;'>⚠️ Please paste your SUPABASE_ANON_KEY into index.html.</p>";
-      return;
-    }
-    try {
-      var res = await db.from("vault_users").select("*").eq("telegram_id", userId).single();
-      if (!res.data) {
-        await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
-      } else if (res.data.telebirr_phone) {
-        document.getElementById("telebirrInput").value = res.data.telebirr_phone;
-      }
-      loadNotes();
-    } catch (e) { console.log(e); }
+  var db = null;
+  if (window.supabase && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY") {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 
   async function loadNotes() {
-    if (!db) return;
+    if (!db) {
+      document.getElementById("notesList").innerHTML = "<p style='color:#f59e0b;text-align:center;'>⚠️ Paste your SUPABASE_ANON_KEY in index.html first.</p>";
+      return;
+    }
     var q = document.getElementById("searchInput").value.toLowerCase();
     var uni = document.getElementById("uniFilter").value;
     var res = await db.from("notes").select("*").order("created_at", { ascending: false }).limit(200);
@@ -198,16 +181,19 @@
     }).join("");
   }
 
-  async function doUpload() {
+  document.getElementById("uniFilter").onchange = loadNotes;
+  document.getElementById("searchInput").oninput = loadNotes;
+
+  document.getElementById("publishBtn").onclick = async function() {
     if (!db) return alert("Paste your SUPABASE_ANON_KEY in index.html first!");
-var fileInput = document.getElementById("upFile");
-var file = fileInput.files && fileInput.files;
-var course = document.getElementById("upCourse").value.trim();
+    var fileInput = document.getElementById("upFile");
+    var file = fileInput.files && fileInput.files[0];
+    var course = document.getElementById("upCourse").value.trim();
 var title = document.getElementById("upTitle").value.trim();
 var uni = document.getElementById("upUni").value;
 var price = Number(document.getElementById("upPrice").value);
-if (!file || !course || !title) return alert("Please fill all fields and choose a PDF file!");
-var btn = document.getElementById("uploadBtn");
+if (!file || !course || !title) return alert("Please fill all fields and select a PDF file!");
+var btn = document.getElementById("publishBtn");
 btn.disabled = true; btn.innerText = "Uploading...";
 var fileName = userId + "_" + Date.now() + ".pdf";
 var upRes = await db.storage.from("study_pdfs").upload(fileName, file);
@@ -216,22 +202,29 @@ btn.disabled = false; btn.innerText = "Publish PDF 🚀";
 return alert("Upload error: " + upRes.error.message);
 }
 var pub = db.storage.from("study_pdfs").getPublicUrl(fileName);
-await db.from("notes").insert({
+var insRes = await db.from("notes").insert({
 uploader_id: userId, uploader_name: userName, university: uni,
 course_code: course, title: title, price_etb: price, file_url: pub.data.publicUrl
 });
 btn.disabled = false; btn.innerText = "Publish PDF 🚀";
+if (insRes.error) return alert("Database error: " + insRes.error.message);
 document.getElementById("upCourse").value = "";
 document.getElementById("upTitle").value = "";
+fileInput.value = "";
 alert("✅ PDF Published!");
-switchTab("browse");
+showTab("Browse");
 loadNotes();
-}
-async function savePhone() {
+};
+document.getElementById("savePhoneBtn").onclick = async function() {
 if (!db) return;
 var phone = document.getElementById("telebirrInput").value.trim();
 if (!phone) return alert("Enter your Telebirr number!");
-await db.from("vault_users").update({ telebirr_phone: phone }).eq("telegram_id", userId);
+await db.from("vault_users").upsert({ telegram_id: userId, full_name: userName, telebirr_phone: phone });
 alert("✅ Telebirr number saved!");
+};
+if (db) {
+db.from("vault_users").upsert({ telegram_id: userId, full_name: userName }, { onConflict: "telegram_id", ignoreDuplicates: true }).then(loadNotes);
+} else {
+loadNotes();
 }
-initUser();
+});
