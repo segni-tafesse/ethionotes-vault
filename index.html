@@ -13,23 +13,19 @@
     .hidden { display: none !important; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .badge { background: rgba(16,185,129,0.15); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; }
-    .hero-card { background: var(--card); border-radius: 16px; padding: 24px 18px; text-align: center; border: 1px solid #334155; margin-top: 20px; position: relative; z-index: 10; }
-    .choice-btn { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: manipulation; }
-    .choice-btn:active { transform: scale(0.98); opacity: 0.9; }
+    .hero-card { background: var(--card); border-radius: 16px; padding: 24px 18px; text-align: center; border: 1px solid #334155; margin-top: 20px; }
+    .choice-btn { display: block; width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 14px; text-align: center; }
     .choice-buy { background: var(--accent); color: #052e16; }
     .choice-sell { background: #3b82f6; color: white; }
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .tab { flex: 1; padding: 11px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: bold; cursor: pointer; font-size: 13px; touch-action: manipulation; }
+    .tab { flex: 1; padding: 11px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: bold; cursor: pointer; font-size: 13px; }
     .tab.active { background: var(--accent); color: #052e16; }
     .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; }
     .tag { display: inline-block; background: #334155; color: #38bdf8; font-size: 11px; padding: 3px 8px; border-radius: 6px; margin-right: 6px; font-weight: 600; }
     .tag-free { background: rgba(16,185,129,0.2); color: #34d399; }
     input, select { width: 100%; padding: 11px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; }
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--accent); color: #052e16; font-weight: bold; font-size: 15px; cursor: pointer; touch-action: manipulation; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--accent); color: #052e16; font-weight: bold; font-size: 15px; cursor: pointer; }
     .btn-free { background: #3b82f6; color: white; }
-    .btn-secondary { background: #475569; color: white; margin-top: 8px; }
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
-    .modal-box { background: var(--card); padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; border: 1px solid #475569; }
   </style>
 </head>
 <body>
@@ -39,38 +35,34 @@
     <h2 style="margin:0;font-size:20px;">📚 EthioNotes Vault</h2>
     <small style="color:var(--muted);">Study Notes & Solved Exams 🇪🇹</small>
   </div>
-  <div style="text-align:right;">
-    <div class="badge" id="launchBadge">🎉 FREE ACCESS</div>
-  </div>
+  <div class="badge" id="launchBadge">🎉 FREE ACCESS</div>
 </div>
 
-<!-- STEP 1: WELCOME / CHOOSE ACTION SCREEN -->
+<!-- STEP 1: WELCOME SCREEN -->
 <div id="welcomeScreen" class="hero-card">
   <h3 style="margin:0 0 8px;font-size:22px;">What would you like to do?</h3>
-  <p style="color:var(--muted);font-size:14px;margin:0 0 16px;">All notes & solved exams are currently <b>100% FREE</b> for students!</p>
+  <p style="color:var(--muted);font-size:14px;margin:0 0 16px;">All notes & solved exams are currently <b>100% FREE</b>!</p>
   
-  <button type="button" id="btnChooseBuy" class="choice-btn choice-buy">
-    <span>🔍 Find & Download Notes / Exams</span>
-    <small style="font-weight:normal;font-size:12px;">Instant free PDF downloads for all universities</small>
+  <button type="button" class="choice-btn choice-buy" onclick="openSection('browse')">
+    🔍 Find & Download Notes / Exams
   </button>
 
-  <button type="button" id="btnChooseSell" class="choice-btn choice-sell">
-    <span>⬆️ Upload Study Notes / Exams</span>
-    <small style="font-weight:normal;font-size:12px;">Share your notes now & earn Telebirr once monetization opens</small>
+  <button type="button" class="choice-btn choice-sell" onclick="openSection('upload')">
+    ⬆️ Upload Study Notes / Exams
   </button>
 </div>
 
-<!-- MAIN APP CONTAINER -->
+<!-- MAIN APP -->
 <div id="mainApp" class="hidden">
   <div class="tabs">
-    <button type="button" class="tab" id="tabBtn-browse">🔍 Browse</button>
-    <button type="button" class="tab" id="tabBtn-upload">⬆️ Upload PDF</button>
-    <button type="button" class="tab" id="tabBtn-wallet">💰 Wallet</button>
+    <button type="button" class="tab" id="tabBtn-browse" onclick="switchTab('browse')">🔍 Browse</button>
+    <button type="button" class="tab" id="tabBtn-upload" onclick="switchTab('upload')">⬆️ Upload PDF</button>
+    <button type="button" class="tab" id="tabBtn-wallet" onclick="switchTab('wallet')">💰 Wallet</button>
   </div>
 
   <!-- BROWSE TAB -->
   <div id="tab-browse" class="hidden">
-    <select id="uniFilter">
+    <select id="uniFilter" onchange="loadNotes()">
       <option value="">All Universities & Freshman Courses</option>
       <option>Freshman / Remedial (All Universities)</option>
       <option>Addis Ababa University (AAU)</option>
@@ -81,7 +73,7 @@
       <option>Hawassa University</option>
       <option>Mekelle University</option>
     </select>
-    <input type="text" id="searchInput" placeholder="Search course or keyword (e.g. Physics, Math, Logic)..." />
+    <input type="text" id="searchInput" placeholder="Search course or keyword..." oninput="loadNotes()" />
     <div id="notesList"><p style="color:var(--muted);text-align:center;">Loading notes...</p></div>
   </div>
 
@@ -89,7 +81,6 @@
   <div id="tab-upload" class="hidden">
     <div class="card">
       <h3 style="margin-top:0;">Upload Study Note or Solved Exam</h3>
-      <p style="font-size:13px;color:var(--muted);">Upload your PDFs now—when paid mode turns on, you earn <b>65%</b> per download!</p>
       <label>University / Level</label>
       <select id="upUni">
         <option>Freshman / Remedial (All Universities)</option>
@@ -104,17 +95,17 @@
       <label>Course Code / Subject</label>
       <input type="text" id="upCourse" placeholder="e.g. Phys 1011 / Applied Math I" />
       <label>Title</label>
-      <input type="text" id="upTitle" placeholder="e.g. 2016 Midterm + Full Step-by-Step Solutions" />
-      <label>Future Price (Free during launch promo)</label>
+      <input type="text" id="upTitle" placeholder="e.g. 2016 Midterm + Full Solutions" />
+      <label>Future Price (Free during launch)</label>
       <select id="upPrice">
         <option value="0">0 ETB (Always Free)</option>
-        <option value="20">20 ETB (Free now — 13 ETB/sale later)</option>
-        <option value="30" selected>30 ETB (Free now — 19.5 ETB/sale later)</option>
-        <option value="50">50 ETB (Free now — 32.5 ETB/sale later)</option>
+        <option value="20">20 ETB (Free now)</option>
+        <option value="30" selected>30 ETB (Free now)</option>
+        <option value="50">50 ETB (Free now)</option>
       </select>
       <label>Select PDF File</label>
       <input type="file" id="upFile" accept="application/pdf" />
-      <button type="button" class="btn" id="uploadBtn">Publish PDF 🚀</button>
+      <button type="button" class="btn" id="uploadBtn" onclick="doUpload()">Publish PDF 🚀</button>
     </div>
   </div>
 
@@ -123,169 +114,124 @@
     <div class="card">
       <h3 style="margin-top:0;">Your Creator Wallet</h3>
       <p style="font-size:28px;font-weight:bold;color:var(--accent);margin:8px 0;" id="walletAmount">0.00 ETB</p>
-      <p style="font-size:13px;color:var(--muted);">Save your Telebirr number now for future creator payouts:</p>
-      <input type="text" id="telebirrInput" placeholder="Enter your Telebirr number (09...)" />
-      <button type="button" class="btn" id="saveWalletBtn">Save Telebirr Number 💾</button>
+      <p style="font-size:13px;color:var(--muted);">Save your Telebirr number for future payouts:</p>
+      <input type="text" id="telebirrInput" placeholder="Enter Telebirr number (09...)" />
+      <button type="button" class="btn" onclick="savePhone()">Save Telebirr Number 💾</button>
     </div>
-  </div>
-</div>
-
-<!-- PAYMENT MODAL -->
-<div id="payModal" class="modal hidden">
-  <div class="modal-box">
-    <h3 style="margin-top:0;" id="modalTitle">Unlock PDF</h3>
-    <p style="font-size:14px;color:var(--muted);" id="modalDesc"></p>
-    <div style="background:#0f172a;padding:12px;border-radius:10px;margin:12px 0;font-size:13px;">
-      1. Send <b style="color:var(--accent);" id="modalPrice">30 ETB</b> via Telebirr to:<br/>
-      <b style="font-size:18px;color:white;">0921036729</b><br/><br/>
-      2. Paste your <b>Telebirr Transaction ID</b> below to unlock:
-    </div>
-    <input type="text" id="txRefInput" placeholder="e.g. BHG7382910" />
-    <button type="button" class="btn" id="confirmUnlockBtn">Confirm Payment & Unlock 🔓</button>
-    <button type="button" class="btn btn-secondary" id="closeModalBtn">Cancel</button>
   </div>
 </div>
 
 <script>
-  // 1. UI NAVIGATION FIRST (GUARANTEED TO WORK IMMEDIATELY)
-  function switchTab(tab) {
-    ["browse", "upload", "wallet"].forEach(function(id) {
-      document.getElementById("tab-" + id).classList.add("hidden");
-      document.getElementById("tabBtn-" + id).classList.remove("active");
-    });
-    document.getElementById("tab-" + tab).classList.remove("hidden");
-    document.getElementById("tabBtn-" + tab).classList.add("active");
-  }
+  // PASTE YOUR SUPABASE PUBLISHABLE / ANON KEY HERE:
+  var SUPABASE_URL = "https://supabase.co";
+  var SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
-  function enterApp(tab) {
+  function openSection(tab) {
     document.getElementById("welcomeScreen").classList.add("hidden");
     document.getElementById("mainApp").classList.remove("hidden");
     switchTab(tab);
   }
 
-  document.getElementById("btnChooseBuy").addEventListener("click", function() { enterApp("browse"); });
-  document.getElementById("btnChooseSell").addEventListener("click", function() { enterApp("upload"); });
-  document.getElementById("tabBtn-browse").addEventListener("click", function() { switchTab("browse"); });
-  document.getElementById("tabBtn-upload").addEventListener("click", function() { switchTab("upload"); });
-  document.getElementById("tabBtn-wallet").addEventListener("click", function() { switchTab("wallet"); });
-
-  // 2. CONFIGURATION (PASTE YOUR SUPABASE ANON KEY BELOW)
-  const FREE_LAUNCH_MODE = true;
-  const SUPABASE_URL = "https://supabase.co";
-  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-
-  let db = null;
-  try {
-    if (window.supabase && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY") {
-      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  function switchTab(tab) {
+    var tabs = ["browse", "upload", "wallet"];
+    for (var i = 0; i < tabs.length; i++) {
+      document.getElementById("tab-" + tabs[i]).classList.add("hidden");
+      document.getElementById("tabBtn-" + tabs[i]).classList.remove("active");
     }
-  } catch (e) { console.error(e); }
+    document.getElementById("tab-" + tab).classList.remove("hidden");
+    document.getElementById("tabBtn-" + tab).classList.add("active");
+  }
 
-  const tg = window.Telegram?.WebApp;
-if (tg) { tg.ready(); tg.expand(); }
-const tgUser = tg?.initDataUnsafe?.user || { id: "demo_user_1", first_name: "Student" };
-const userId = String(tgUser.id);
-const userName = tgUser.first_name || "Student";
-let selectedNote = null;
-async function initUser() {
-if (!db) {
-document.getElementById("notesList").innerHTML = <p style="color:#f59e0b;text-align:center;">⚠️ Paste your SUPABASE_ANON_KEY in index.html to load & upload PDFs.</p>;
-return;
+  var db = null;
+  if (window.supabase && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY") {
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  var tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : { id: "demo_user_1", first_name: "Student" };
+  var userId = String(tgUser.id);
+  var userName = tgUser.first_name || "Student";
+
+  async function initUser() {
+    if (!db) {
+      document.getElementById("notesList").innerHTML = "<p style='color:#f59e0b;text-align:center;'>⚠️ Please paste your SUPABASE_ANON_KEY into index.html.</p>";
+      return;
+    }
+    try {
+      var res = await db.from("vault_users").select("*").eq("telegram_id", userId).single();
+      if (!res.data) {
+        await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
+      } else if (res.data.telebirr_phone) {
+        document.getElementById("telebirrInput").value = res.data.telebirr_phone;
+      }
+      loadNotes();
+    } catch (e) { console.log(e); }
+  }
+
+  async function loadNotes() {
+    if (!db) return;
+    var q = document.getElementById("searchInput").value.toLowerCase();
+    var uni = document.getElementById("uniFilter").value;
+    var res = await db.from("notes").select("*").order("created_at", { ascending: false }).limit(200);
+    var notes = res.data || [];
+    var filtered = notes.filter(function(n) {
+      var matchUni = !uni || n.university === uni;
+      var matchSearch = n.university.toLowerCase().includes(q) || n.course_code.toLowerCase().includes(q) || n.title.toLowerCase().includes(q);
+      return matchUni && matchSearch;
+    });
+
+    var list = document.getElementById("notesList");
+    if (!filtered.length) {
+      list.innerHTML = "<p style='color:#94a3b8;text-align:center;'>No notes uploaded yet. Tap Upload PDF to add the first one!</p>";
+      return;
+    }
+
+    list.innerHTML = filtered.map(function(n) {
+      return "<div class='card'>" +
+        "<div><span class='tag'>" + n.university + "</span><span class='tag'>" + n.course_code + "</span><span class='tag tag-free'>FREE</span></div>" +
+        "<h4 style='margin:8px 0 4px;'>" + n.title + "</h4>" +
+        "<small style='color:#94a3b8;display:block;margin-bottom:10px;'>By " + n.uploader_name + "</small>" +
+        "<a href='" + n.file_url + "' target='_blank' style='text-decoration:none;'><button type='button' class='btn btn-free'>Download Free PDF 📥</button></a>" +
+      "</div>";
+    }).join("");
+  }
+
+  async function doUpload() {
+    if (!db) return alert("Paste your SUPABASE_ANON_KEY in index.html first!");
+var fileInput = document.getElementById("upFile");
+var file = fileInput.files && fileInput.files;
+var course = document.getElementById("upCourse").value.trim();
+var title = document.getElementById("upTitle").value.trim();
+var uni = document.getElementById("upUni").value;
+var price = Number(document.getElementById("upPrice").value);
+if (!file || !course || !title) return alert("Please fill all fields and choose a PDF file!");
+var btn = document.getElementById("uploadBtn");
+btn.disabled = true; btn.innerText = "Uploading...";
+var fileName = userId + "_" + Date.now() + ".pdf";
+var upRes = await db.storage.from("study_pdfs").upload(fileName, file);
+if (upRes.error) {
+btn.disabled = false; btn.innerText = "Publish PDF 🚀";
+return alert("Upload error: " + upRes.error.message);
 }
-try {
-let { data } = await db.from("vault_users").select("*").eq("telegram_id", userId).single();
-if (!data) {
-await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
-data = { balance_etb: 0 };
-}
-if (!FREE_LAUNCH_MODE) {
-document.getElementById("launchBadge").innerText = ${data.balance_etb} ETB;
-}
-document.getElementById("walletAmount").innerText = ${Number(data.balance_etb).toFixed(2)} ETB;
-if (data.telebirr_phone) document.getElementById("telebirrInput").value = data.telebirr_phone;
-loadNotes();
-} catch (err) { console.error(err); }
-}
-async function loadNotes() {
-if (!db) return;
-const q = document.getElementById("searchInput").value.toLowerCase();
-const uni = document.getElementById("uniFilter").value;
-const { data: notes } = await db.from("notes").select("*").order("created_at", { ascending: false }).limit(200);
-const { data: myUnlocks } = await db.from("unlocks").select("note_id, status").eq("buyer_id", userId);
-const unlockMap = {};
-(myUnlocks || []).forEach(u => unlockMap[u.note_id] = u.status);
-const list = document.getElementById("notesList");
-const filtered = (notes || []).filter(n => {
-const matchUni = !uni || n.university === uni;
-const matchSearch = n.university.toLowerCase().includes(q) || n.course_code.toLowerCase().includes(q) || n.title.toLowerCase().includes(q);
-return matchUni && matchSearch;
-});
-if (!filtered.length) {
-list.innerHTML = <p style="color:var(--muted);text-align:center;">No notes uploaded yet. Tap "Upload PDF" to add the first one!</p>;
-return;
-}
-list.innerHTML = filtered.map(n => {
-const isFree = FREE_LAUNCH_MODE || Number(n.price_etb) === 0;
-const status = unlockMap[n.id];
-let actionBtn = <button type="button" class="btn" onclick='openUnlock(${JSON.stringify(n)})'>Unlock Full PDF — ${n.price_etb} ETB 🔒</button>;
-if (isFree || n.uploader_id === userId || status === "approved") {
-actionBtn = <a href="${n.file_url}" target="_blank" style="text-decoration:none;"><button type="button" class="btn btn-free">Download Free PDF 📥</button></a>;
-} else if (status === "pending") {
-actionBtn = <button type="button" class="btn" style="background:#f59e0b;" disabled>⏳ Verifying Telebirr TX...</button>;
-}
-return <div class="card"> <div> <span class="tag">${n.university}</span> <span class="tag">${n.course_code}</span> ${isFree ? '<span class="tag tag-free">FREE PROMO</span>' : ''} </div> <h4 style="margin:8px 0 4px;">${n.title}</h4> <small style="color:var(--muted);display:block;margin-bottom:10px;">By ${n.uploader_name}</small> ${actionBtn} </div>;
-}).join("");
-}
-document.getElementById("uniFilter").addEventListener("change", loadNotes);
-document.getElementById("searchInput").addEventListener("input", loadNotes);
-document.getElementById("uploadBtn").addEventListener("click", async function() {
-if (!db) return alert("Please add your SUPABASE_ANON_KEY first!");
-const file = document.getElementById("upFile").files;
-const course = document.getElementById("upCourse").value.trim();
-const title = document.getElementById("upTitle").value.trim();
-const uni = document.getElementById("upUni").value;
-const price = Number(document.getElementById("upPrice").value);
-if (!file || !course || !title) return alert("Please fill all fields and select a PDF!");
-const btn = document.getElementById("uploadBtn");
-btn.disabled = true; btn.innerText = "Uploading PDF...";
-const fileName = ${userId}_${Date.now()}.pdf;
-const { error: upErr } = await db.storage.from("study_pdfs").upload(fileName, file);
-if (upErr) { btn.disabled = false; btn.innerText = "Publish PDF 🚀"; return alert("Upload error: " + upErr.message); }
-const { data: pub } = db.storage.from("study_pdfs").getPublicUrl(fileName);
+var pub = db.storage.from("study_pdfs").getPublicUrl(fileName);
 await db.from("notes").insert({
 uploader_id: userId, uploader_name: userName, university: uni,
-course_code: course, title: title, price_etb: price, file_url: pub.publicUrl
+course_code: course, title: title, price_etb: price, file_url: pub.data.publicUrl
 });
 btn.disabled = false; btn.innerText = "Publish PDF 🚀";
-document.getElementById("upCourse").value = ""; document.getElementById("upTitle").value = "";
+document.getElementById("upCourse").value = "";
+document.getElementById("upTitle").value = "";
 alert("✅ PDF Published!");
 switchTab("browse");
 loadNotes();
-});
-function openUnlock(note) {
-selectedNote = note;
-document.getElementById("modalTitle").innerText = note.title;
-document.getElementById("modalDesc").innerText = ${note.university} • ${note.course_code};
-document.getElementById("modalPrice").innerText = ${note.price_etb} ETB;
-document.getElementById("payModal").classList.remove("hidden");
 }
-document.getElementById("closeModalBtn").addEventListener("click", function() {
-document.getElementById("payModal").classList.add("hidden");
-});
-document.getElementById("confirmUnlockBtn").addEventListener("click", async function() {
-const tx = document.getElementById("txRefInput").value.trim();
-if (!tx) return alert("Please enter your Telebirr transaction ID!");
-await db.from("unlocks").insert({
-buyer_id: userId, note_id: selectedNote.id, amount_paid: selectedNote.price_etb, status: "pending", payment_ref: tx
-});
-document.getElementById("payModal").classList.add("hidden");
-alert("✅ Payment submitted!");
-loadNotes();
-});
-document.getElementById("saveWalletBtn").addEventListener("click", async function() {
-const phone = document.getElementById("telebirrInput").value.trim();
+async function savePhone() {
+if (!db) return;
+var phone = document.getElementById("telebirrInput").value.trim();
 if (!phone) return alert("Enter your Telebirr number!");
 await db.from("vault_users").update({ telebirr_phone: phone }).eq("telegram_id", userId);
 alert("✅ Telebirr number saved!");
-});
+}
 initUser();
