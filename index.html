@@ -2,28 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>EthioNotes Vault</title>
   <script src="https://telegram.org"></script>
   <script src="https://jsdelivr.net"></script>
   <style>
     :root { --bg: #0f172a; --card: #1e293b; --accent: #10b981; --text: #f8fafc; --muted: #94a3b8; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 16px; padding-bottom: 80px; }
     .hidden { display: none !important; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .badge { background: rgba(16,185,129,0.15); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; }
-    .hero-card { background: var(--card); border-radius: 16px; padding: 24px 18px; text-align: center; border: 1px solid #334155; margin-top: 20px; }
-    .choice-btn { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hero-card { background: var(--card); border-radius: 16px; padding: 24px 18px; text-align: center; border: 1px solid #334155; margin-top: 20px; position: relative; z-index: 10; }
+    .choice-btn { width: 100%; padding: 18px; border: none; border-radius: 14px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: manipulation; }
+    .choice-btn:active { transform: scale(0.98); opacity: 0.9; }
     .choice-buy { background: var(--accent); color: #052e16; }
     .choice-sell { background: #3b82f6; color: white; }
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: bold; cursor: pointer; font-size: 13px; }
+    .tab { flex: 1; padding: 11px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: bold; cursor: pointer; font-size: 13px; touch-action: manipulation; }
     .tab.active { background: var(--accent); color: #052e16; }
     .card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; }
     .tag { display: inline-block; background: #334155; color: #38bdf8; font-size: 11px; padding: 3px 8px; border-radius: 6px; margin-right: 6px; font-weight: 600; }
     .tag-free { background: rgba(16,185,129,0.2); color: #34d399; }
-    input, select { width: 100%; box-sizing: border-box; padding: 11px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; }
-    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--accent); color: #052e16; font-weight: bold; font-size: 15px; cursor: pointer; }
+    input, select { width: 100%; padding: 11px; margin: 6px 0 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 14px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--accent); color: #052e16; font-weight: bold; font-size: 15px; cursor: pointer; touch-action: manipulation; }
     .btn-free { background: #3b82f6; color: white; }
     .btn-secondary { background: #475569; color: white; margin-top: 8px; }
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
@@ -47,12 +49,12 @@
   <h3 style="margin:0 0 8px;font-size:22px;">What would you like to do?</h3>
   <p style="color:var(--muted);font-size:14px;margin:0 0 16px;">All notes & solved exams are currently <b>100% FREE</b> for students!</p>
   
-  <button class="choice-btn choice-buy" onclick="enterApp('browse')">
+  <button type="button" id="btnChooseBuy" class="choice-btn choice-buy">
     <span>🔍 Find & Download Notes / Exams</span>
     <small style="font-weight:normal;font-size:12px;">Instant free PDF downloads for all universities</small>
   </button>
 
-  <button class="choice-btn choice-sell" onclick="enterApp('upload')">
+  <button type="button" id="btnChooseSell" class="choice-btn choice-sell">
     <span>⬆️ Upload Study Notes / Exams</span>
     <small style="font-weight:normal;font-size:12px;">Share your notes now & earn Telebirr once monetization opens</small>
   </button>
@@ -61,14 +63,14 @@
 <!-- MAIN APP CONTAINER -->
 <div id="mainApp" class="hidden">
   <div class="tabs">
-    <button class="tab" id="tabBtn-browse" onclick="switchTab('browse')">🔍 Browse</button>
-    <button class="tab" id="tabBtn-upload" onclick="switchTab('upload')">⬆️ Upload PDF</button>
-    <button class="tab" id="tabBtn-wallet" onclick="switchTab('wallet')">💰 Wallet</button>
+    <button type="button" class="tab" id="tabBtn-browse">🔍 Browse</button>
+    <button type="button" class="tab" id="tabBtn-upload">⬆️ Upload PDF</button>
+    <button type="button" class="tab" id="tabBtn-wallet">💰 Wallet</button>
   </div>
 
   <!-- BROWSE TAB -->
   <div id="tab-browse" class="hidden">
-    <select id="uniFilter" onchange="loadNotes()">
+    <select id="uniFilter">
       <option value="">All Universities & Freshman Courses</option>
       <option>Freshman / Remedial (All Universities)</option>
       <option>Addis Ababa University (AAU)</option>
@@ -79,7 +81,7 @@
       <option>Hawassa University</option>
       <option>Mekelle University</option>
     </select>
-    <input type="text" id="searchInput" placeholder="Search course or keyword (e.g. Physics, Math, Logic)..." oninput="loadNotes()" />
+    <input type="text" id="searchInput" placeholder="Search course or keyword (e.g. Physics, Math, Logic)..." />
     <div id="notesList"><p style="color:var(--muted);text-align:center;">Loading notes...</p></div>
   </div>
 
@@ -112,7 +114,7 @@
       </select>
       <label>Select PDF File</label>
       <input type="file" id="upFile" accept="application/pdf" />
-      <button class="btn" id="uploadBtn" onclick="uploadNote()">Publish PDF 🚀</button>
+      <button type="button" class="btn" id="uploadBtn">Publish PDF 🚀</button>
     </div>
   </div>
 
@@ -123,12 +125,12 @@
       <p style="font-size:28px;font-weight:bold;color:var(--accent);margin:8px 0;" id="walletAmount">0.00 ETB</p>
       <p style="font-size:13px;color:var(--muted);">Save your Telebirr number now for future creator payouts:</p>
       <input type="text" id="telebirrInput" placeholder="Enter your Telebirr number (09...)" />
-      <button class="btn" onclick="requestWithdraw()">Save Telebirr Number 💾</button>
+      <button type="button" class="btn" id="saveWalletBtn">Save Telebirr Number 💾</button>
     </div>
   </div>
 </div>
 
-<!-- PAYMENT MODAL (USED WHEN FREE_LAUNCH_MODE IS SET TO FALSE) -->
+<!-- PAYMENT MODAL -->
 <div id="payModal" class="modal hidden">
   <div class="modal-box">
     <h3 style="margin-top:0;" id="modalTitle">Unlock PDF</h3>
@@ -139,35 +141,15 @@
       2. Paste your <b>Telebirr Transaction ID</b> below to unlock:
     </div>
     <input type="text" id="txRefInput" placeholder="e.g. BHG7382910" />
-    <button class="btn" onclick="submitUnlock()">Confirm Payment & Unlock 🔓</button>
-    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button type="button" class="btn" id="confirmUnlockBtn">Confirm Payment & Unlock 🔓</button>
+    <button type="button" class="btn btn-secondary" id="closeModalBtn">Cancel</button>
   </div>
 </div>
 
 <script>
-  // ====== SWITCH THIS TO false LATER WHEN YOU WANT TO CHARGE MONEY ======
-  const FREE_LAUNCH_MODE = true;
-  const SUPABASE_URL = "https://supabase.co";
-  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-  // ======================================================================
-
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const tg = window.Telegram.WebApp;
-  tg.expand();
-
-  const tgUser = tg.initDataUnsafe?.user || { id: "demo_user_1", first_name: "Student" };
-  const userId = String(tgUser.id);
-  const userName = tgUser.first_name || "Student";
-  let selectedNote = null;
-
-  function enterApp(tab) {
-    document.getElementById("welcomeScreen").classList.add("hidden");
-    document.getElementById("mainApp").classList.remove("hidden");
-    switchTab(tab);
-  }
-
+  // 1. UI NAVIGATION FIRST (GUARANTEED TO WORK IMMEDIATELY)
   function switchTab(tab) {
-    ["browse", "upload", "wallet"].forEach(id => {
+    ["browse", "upload", "wallet"].forEach(function(id) {
       document.getElementById("tab-" + id).classList.add("hidden");
       document.getElementById("tabBtn-" + id).classList.remove("active");
     });
@@ -175,20 +157,57 @@
     document.getElementById("tabBtn-" + tab).classList.add("active");
   }
 
-  async function initUser() {
-    let { data } = await db.from("vault_users").select("*").eq("telegram_id", userId).single();
-    if (!data) {
-      await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
-      data = { balance_etb: 0 };
+  function enterApp(tab) {
+    document.getElementById("welcomeScreen").classList.add("hidden");
+    document.getElementById("mainApp").classList.remove("hidden");
+    switchTab(tab);
+  }
+
+  document.getElementById("btnChooseBuy").addEventListener("click", function() { enterApp("browse"); });
+  document.getElementById("btnChooseSell").addEventListener("click", function() { enterApp("upload"); });
+  document.getElementById("tabBtn-browse").addEventListener("click", function() { switchTab("browse"); });
+  document.getElementById("tabBtn-upload").addEventListener("click", function() { switchTab("upload"); });
+  document.getElementById("tabBtn-wallet").addEventListener("click", function() { switchTab("wallet"); });
+
+  // 2. CONFIGURATION (PASTE YOUR SUPABASE ANON KEY BELOW)
+  const FREE_LAUNCH_MODE = true;
+  const SUPABASE_URL = "https://supabase.co";
+  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+  let db = null;
+  try {
+    if (window.supabase && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY") {
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
-    if (!FREE_LAUNCH_MODE) {
-      document.getElementById("launchBadge").innerText = `${data.balance_etb} ETB`;
-    }
-    document.getElementById("walletAmount").innerText = `${Number(data.balance_etb).toFixed(2)} ETB`;
-    if (data.telebirr_phone) document.getElementById("telebirrInput").value = data.telebirr_phone;
+  } catch (e) { console.error(e); }
+
+  const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+const tgUser = tg?.initDataUnsafe?.user || { id: "demo_user_1", first_name: "Student" };
+const userId = String(tgUser.id);
+const userName = tgUser.first_name || "Student";
+let selectedNote = null;
+async function initUser() {
+if (!db) {
+document.getElementById("notesList").innerHTML = <p style="color:#f59e0b;text-align:center;">⚠️ Paste your SUPABASE_ANON_KEY in index.html to load & upload PDFs.</p>;
+return;
+}
+try {
+let { data } = await db.from("vault_users").select("*").eq("telegram_id", userId).single();
+if (!data) {
+await db.from("vault_users").insert({ telegram_id: userId, full_name: userName, balance_etb: 0 });
+data = { balance_etb: 0 };
+}
+if (!FREE_LAUNCH_MODE) {
+document.getElementById("launchBadge").innerText = ${data.balance_etb} ETB;
+}
+document.getElementById("walletAmount").innerText = ${Number(data.balance_etb).toFixed(2)} ETB;
+if (data.telebirr_phone) document.getElementById("telebirrInput").value = data.telebirr_phone;
 loadNotes();
+} catch (err) { console.error(err); }
 }
 async function loadNotes() {
+if (!db) return;
 const q = document.getElementById("searchInput").value.toLowerCase();
 const uni = document.getElementById("uniFilter").value;
 const { data: notes } = await db.from("notes").select("*").order("created_at", { ascending: false }).limit(200);
@@ -208,16 +227,19 @@ return;
 list.innerHTML = filtered.map(n => {
 const isFree = FREE_LAUNCH_MODE || Number(n.price_etb) === 0;
 const status = unlockMap[n.id];
-let actionBtn = <button class="btn" onclick='openUnlock(${JSON.stringify(n)})'>Unlock Full PDF — ${n.price_etb} ETB 🔒</button>;
+let actionBtn = <button type="button" class="btn" onclick='openUnlock(${JSON.stringify(n)})'>Unlock Full PDF — ${n.price_etb} ETB 🔒</button>;
 if (isFree || n.uploader_id === userId || status === "approved") {
-actionBtn = <a href="${n.file_url}" target="_blank" style="text-decoration:none;"><button class="btn btn-free">Download Free PDF 📥</button></a>;
+actionBtn = <a href="${n.file_url}" target="_blank" style="text-decoration:none;"><button type="button" class="btn btn-free">Download Free PDF 📥</button></a>;
 } else if (status === "pending") {
-actionBtn = <button class="btn" style="background:#f59e0b;" disabled>⏳ Verifying Telebirr TX...</button>;
+actionBtn = <button type="button" class="btn" style="background:#f59e0b;" disabled>⏳ Verifying Telebirr TX...</button>;
 }
 return <div class="card"> <div> <span class="tag">${n.university}</span> <span class="tag">${n.course_code}</span> ${isFree ? '<span class="tag tag-free">FREE PROMO</span>' : ''} </div> <h4 style="margin:8px 0 4px;">${n.title}</h4> <small style="color:var(--muted);display:block;margin-bottom:10px;">By ${n.uploader_name}</small> ${actionBtn} </div>;
 }).join("");
 }
-async function uploadNote() {
+document.getElementById("uniFilter").addEventListener("change", loadNotes);
+document.getElementById("searchInput").addEventListener("input", loadNotes);
+document.getElementById("uploadBtn").addEventListener("click", async function() {
+if (!db) return alert("Please add your SUPABASE_ANON_KEY first!");
 const file = document.getElementById("upFile").files;
 const course = document.getElementById("upCourse").value.trim();
 const title = document.getElementById("upTitle").value.trim();
@@ -239,7 +261,7 @@ document.getElementById("upCourse").value = ""; document.getElementById("upTitle
 alert("✅ PDF Published!");
 switchTab("browse");
 loadNotes();
-}
+});
 function openUnlock(note) {
 selectedNote = note;
 document.getElementById("modalTitle").innerText = note.title;
@@ -247,21 +269,23 @@ document.getElementById("modalDesc").innerText = ${note.university} • ${note.c
 document.getElementById("modalPrice").innerText = ${note.price_etb} ETB;
 document.getElementById("payModal").classList.remove("hidden");
 }
-function closeModal() { document.getElementById("payModal").classList.add("hidden"); }
-async function submitUnlock() {
+document.getElementById("closeModalBtn").addEventListener("click", function() {
+document.getElementById("payModal").classList.add("hidden");
+});
+document.getElementById("confirmUnlockBtn").addEventListener("click", async function() {
 const tx = document.getElementById("txRefInput").value.trim();
 if (!tx) return alert("Please enter your Telebirr transaction ID!");
 await db.from("unlocks").insert({
 buyer_id: userId, note_id: selectedNote.id, amount_paid: selectedNote.price_etb, status: "pending", payment_ref: tx
 });
-closeModal();
-alert("✅ Payment submitted! Once verified, your PDF download unlocks automatically.");
+document.getElementById("payModal").classList.add("hidden");
+alert("✅ Payment submitted!");
 loadNotes();
-}
-async function requestWithdraw() {
+});
+document.getElementById("saveWalletBtn").addEventListener("click", async function() {
 const phone = document.getElementById("telebirrInput").value.trim();
 if (!phone) return alert("Enter your Telebirr number!");
 await db.from("vault_users").update({ telebirr_phone: phone }).eq("telegram_id", userId);
 alert("✅ Telebirr number saved!");
-}
+});
 initUser();
